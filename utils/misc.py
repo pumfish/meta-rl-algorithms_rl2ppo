@@ -4,7 +4,7 @@ import logging
 import torch
 import numpy as np
 import torch.nn as nn
-from moviepy.editor import ImageSequenceClip
+from moviepy import ImageSequenceClip # from moviepy.editor import ImageSequenceClip
 
 
 class Actor(nn.Module):
@@ -150,5 +150,6 @@ def save_state(state_dict, path, epoch=None, job_id=None):
     # save the model (to temporary path if job_id is specified then rename)
     model_file_tmp = model_file if job_id is None else model_file + f"_{job_id}"
     torch.save(state_dict, model_file_tmp)
+    print(f"Model save path is {model_file_tmp}")
     if model_file_tmp != model_file:
         os.rename(model_file_tmp, model_file)
