@@ -1,0 +1,29 @@
+# Experiment
+device_id: cuda:0        # 直接跑在CPU上，避免GPU初始化时间
+seed: 0
+# Trial exp
+episodes: 2           # 每个trial只有2个episodes
+meta_epochs: 2        # 只训练2个meta-epoch即可验证流程
+log_every_n: 1        # 每次都log，方便观察
+
+# Environment
+max_episode_steps: 2  # 每个episode只有2步, 控制buffer size
+
+
+# Agent
+update_every_n: 2     # 累积2步就更新一次
+update_epochs: 1
+actor_critic:
+  rnn_type: "gru"     # 用最小的GRU
+  obs_enc_dim: 4      # 小输入embedding
+  rnn_size: 4         # 极小RNN隐藏维度
+  actor_hidden_sizes: [8]
+  critic_hidden_sizes: [8]
+
+ppo:
+  lr: 1.0e-3
+  gae_lambda: 0.95
+  clip_ratio: 0.2
+  value_coeff: 0.5
+  max_grad_norm: 5.0
+  entropy_coeff: 0.01

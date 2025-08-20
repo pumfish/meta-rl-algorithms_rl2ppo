@@ -1,5 +1,5 @@
 # Experiment
-device_id: cpu
+device_id: cuda:0
 seed: 42
 # Trial episodes
 episodes: 30
