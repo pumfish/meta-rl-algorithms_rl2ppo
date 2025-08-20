@@ -115,7 +115,7 @@ class PPO(nn.Module):
             batch["prev_action"],
             batch["prev_reward"],
         )
-        b_prev_rew = b_prev_rew.unsqueeze(-1)
+        # b_prev_rew = b_prev_rew.unsqueeze(-1)
 
         # Value loss
         v, _ = self.actor_critic.value(
@@ -142,7 +142,7 @@ class PPO(nn.Module):
             batch["prev_action"],
             batch["prev_reward"],
         )
-        b_prev_rew = b_prev_rew.unsqueeze(-1)
+        # b_prev_rew = b_prev_rew.unsqueeze(-1)
 
         # Normalize the advtange, done per batch to not affect the mini-batch too much
         norm_adv = (b_advantage - b_advantage.mean()) / (
@@ -177,3 +177,33 @@ class PPO(nn.Module):
             ent = pi.entropy().mean()
 
         return loss_pi, pi, dict(kl=approx_kl, ent=ent, cf=clip_frac)
+
+    def load_weights(self, path):
+        # import os
+        # # 列出路径中的所有文件，筛选出包含 'epoch' 的文件
+        # checkpoint_files = [f for f in os.listdir(path) if f.endswith(".pth")]
+        
+        # # 如果没有找到文件，直接返回
+        # if not checkpoint_files:
+        #     raise ValueError(f"No checkpoint files found in the path: {path}")
+
+        # # 取最后一个 epoch 文件（假设最新的文件是最大的 epoch）
+        # latest_checkpoint = max(checkpoint_files, key=lambda f: int(f.split("_epoch_")[1].split(".")[0]))
+        
+        # # 加载最新的 checkpoint 文件
+        # checkpoint_path = os.path.join(path, latest_checkpoint)
+        # checkpoint = torch.load(checkpoint_path, map_location="cpu")
+        
+        # # 恢复 actor_critic 和 optimizer 的状态
+        # self.actor_critic.load_state_dict(checkpoint["actor_critic"])
+        # self.optimizer.load_state_dict(checkpoint["optimizer"])
+
+        # print(f"Loaded model from {checkpoint_path}")
+        # 加载 checkpoint 文件
+        checkpoint = torch.load(path, map_location="cpu")
+        
+        # 恢复 actor_critic 和 optimizer 的状态
+        self.actor_critic.load_state_dict(checkpoint["actor_critic"])
+        self.optimizer.load_state_dict(checkpoint["optimizer"])
+
+        print(f"Loaded model from {path}")

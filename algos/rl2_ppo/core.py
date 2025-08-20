@@ -107,12 +107,12 @@ class ActorCritic(nn.Module):
         self.device = device
         self.rnn_type = rnn_type
         self.rnn_size = rnn_size
-        obs_dim = obs_space.shape[0]
+        obs_dim = obs_space.shape[-1]
         self.obs_enc_dim = obs_enc_dim
 
         if isinstance(action_space, Box):
             self.cont_action_space = True
-            self.action_dim = action_space.shape[0]
+            self.action_dim = action_space.shape[-1]
             self.actor = GaussianActor(
                 rnn_size,
                 self.action_dim,
@@ -151,8 +151,8 @@ class ActorCritic(nn.Module):
 
     def _one_hot(self, act):
         if self.cont_action_space:
-            if len(act.shape) == 2:
-                act = act.unsqueeze(-1)
+            # if len(act.shape) == 2:
+            #     act = act.unsqueeze(-1)
 
             return act
         return torch.eye(self.action_dim).to(self.device)[act.long(), :]
@@ -184,6 +184,8 @@ class ActorCritic(nn.Module):
         rnn_input = torch.cat(
             [obs_enc, prev_action, prev_reward], dim=-1
         ).float()
+        if len(rnn_input.shape) == 4:
+            rnn_input = rnn_input.squeeze(-2)
 
         if training:
             # Input rnn: (batch size, sequence length, features)
@@ -200,7 +202,7 @@ class ActorCritic(nn.Module):
         return rnn_out, rnn_state_out
 
     def value(self, obs, prev_action, prev_reward, rnn_state, training=False):
-
+        # breakpoint()
         rnn_out, rnn_state = self.recurrent_state(
             obs, prev_action, prev_reward, rnn_state, training
         )
@@ -219,7 +221,8 @@ class ActorCritic(nn.Module):
         rnn_out, rnn_state = self.recurrent_state(
             obs, prev_action, prev_reward, rnn_state, training
         )
-
+        if len(action.shape) == 4:
+            action = action.squeeze(-2)
         pi, logp_a = self.actor(rnn_out, act=action)
 
         return pi, logp_a, rnn_state
